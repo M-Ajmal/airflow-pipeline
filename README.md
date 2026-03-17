@@ -1,11 +1,33 @@
-# 🌤️ Weather Data Pipeline — Apache Airflow + Docker
+# 🌦️ Weather Data Pipeline — Apache Airflow + Docker
 
-A complete, local data pipeline that:
-1. **Deploys** Apache Airflow using Docker Compose
-2. **Extracts** live weather data from the Open-Meteo API (free, no API key)
-3. **Schedules** the extraction daily with an Airflow DAG
-4. **Stores** results in a SQLite database
-5. **Visualises** trends using Jupyter Notebook + pandas + matplotlib
+A complete, end-to-end data pipeline that automates weather data collection, processing, storage, and visualization using Apache Airflow and Docker.
+
+---
+
+## 📌 Project Overview
+
+This project demonstrates a fully automated data pipeline built with Apache Airflow. It extracts real-time weather data from the Open-Meteo API, processes it, and stores it in a SQLite database. The pipeline is scheduled, monitored, and managed using Airflow, while Docker ensures a consistent and reproducible environment.
+
+---
+
+## 🎯 Objectives
+
+* Build an end-to-end data pipeline using Apache Airflow
+* Automate data extraction, transformation, and storage
+* Implement scheduling and workflow monitoring
+* Use Docker for containerized deployment
+* Visualize data using Python tools
+
+---
+
+## ⚙️ Technologies Used
+
+* **Apache Airflow** – Workflow orchestration
+* **Python** – Data processing
+* **Docker & Docker Compose** – Containerization
+* **SQLite** – Data storage
+* **Open-Meteo API** – Weather data source
+* **Pandas & Matplotlib** – Data visualization
 
 ---
 
@@ -13,113 +35,100 @@ A complete, local data pipeline that:
 
 ```
 airflow-pipeline/
-├── docker-compose.yaml          ← Full Airflow stack (webserver, scheduler, postgres)
+├── docker-compose.yaml
 ├── dags/
-│   └── weather_dag.py           ← Airflow DAG (runs daily at 07:00 UTC)
+│   └── weather_dag.py
 ├── scripts/
-│   └── extract_weather.py       ← Data extraction script (Open-Meteo API → SQLite)
+│   └── extract_weather.py
 ├── database/
-│   └── weather.db               ← SQLite database (auto-created on first run)
+│   └── weather.db
 ├── notebook/
-│   └── visualization.ipynb      ← Jupyter charts (temperature, humidity, wind)
-├── logs/                        ← Airflow task logs (auto-created)
-└── plugins/                     ← Airflow plugins (empty, reserved)
+│   └── visualization.ipynb
+├── images/
+│   ├── airflow-ui.png
+│   ├── dag-graph.png
+│   ├── pipeline.png
+│   ├── task1.png
+│   ├── task2.png
+│   ├── docker.png
+│   ├── extract.png
+│   └── db.png
+├── logs/
+├── plugins/
+├── requirements.txt
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## ⚙️ Prerequisites
+## 🚀 Setup Instructions
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Docker Desktop | Latest | https://docs.docker.com/get-docker/ |
-| Docker Compose | v2+ | Included with Docker Desktop |
-| Python | 3.9+ | https://python.org (for running notebook locally) |
-| Jupyter | Any | `pip install jupyter` |
-
----
-
-## 🚀 Step-by-Step Setup
-
-### Step 1 — Clone / Download the project
-
-Place the project folder anywhere on your machine, e.g.:
-```
-C:\Users\YourName\airflow-pipeline\    (Windows)
-~/airflow-pipeline/                    (Mac / Linux)
-```
-
-### Step 2 — Open a terminal in the project folder
+### 1️⃣ Clone or Download Project
 
 ```bash
 cd airflow-pipeline
 ```
 
-### Step 3 — Create required folders & set Airflow UID
+---
+
+### 2️⃣ Create Required Folders & Environment File
 
 **Windows (PowerShell):**
-```powershell
+
+```bash
 mkdir logs, plugins -Force
 echo "AIRFLOW_UID=50000" > .env
 ```
 
-**Mac / Linux:**
+**Mac/Linux:**
+
 ```bash
 mkdir -p logs plugins
 echo "AIRFLOW_UID=$(id -u)" > .env
 ```
 
-### Step 4 — Start the Docker containers
+---
+
+### 3️⃣ Start Docker Containers
 
 ```bash
 docker compose up -d
 ```
 
-This downloads ~800 MB of images on first run. Wait ~2 minutes for all services to be healthy.
+---
 
-Check container status:
-```bash
-docker compose ps
-```
+### 4️⃣ Open Airflow UI
 
-Expected output — all services should show **running** or **healthy**:
-```
-NAME                         STATUS
-airflow-pipeline-postgres-1               healthy
-airflow-pipeline-airflow-webserver-1      healthy
-airflow-pipeline-airflow-scheduler-1      running
-```
-
-### Step 5 — Open the Airflow Web UI
-
-Open your browser and go to:
 ```
 http://localhost:8080
 ```
 
-Login credentials:
-```
-Username: admin
-Password: admin
-```
+**Login:**
+
+* Username: `admin`
+* Password: `admin`
 
 ---
 
 ## ▶️ Running the Pipeline
 
-### Option A — Trigger the DAG manually (recommended for testing)
+### 🔹 Manual Trigger
 
-1. In the Airflow UI, click **DAGs** in the top menu
-2. Find **`weather_data_pipeline`** in the list
-3. Toggle the DAG **ON** (blue switch on the left)
-4. Click the ▶ **Trigger DAG** button (play icon under Actions)
-5. Click the DAG name → **Graph** view to watch tasks execute
+* Open Airflow UI
+* Enable DAG: `weather_data_pipeline`
+* Click **Trigger DAG**
+* View execution in Graph View
 
-### Option B — Wait for automatic schedule
+---
 
-The DAG runs automatically every day at **07:00 UTC**.
+### 🔹 Automatic Schedule
 
-### Option C — Trigger via CLI
+Runs daily at **07:00 UTC**
+
+---
+
+### 🔹 CLI Trigger
 
 ```bash
 docker compose exec airflow-webserver airflow dags trigger weather_data_pipeline
@@ -127,106 +136,29 @@ docker compose exec airflow-webserver airflow dags trigger weather_data_pipeline
 
 ---
 
-## 📊 Viewing Stored Data
+## 📊 Data Visualization
 
-### Option A — SQL query inside Docker
-
-```bash
-docker compose exec airflow-webserver \
-  python -c "
-import sqlite3, os
-conn = sqlite3.connect('/opt/airflow/database/weather.db')
-cur  = conn.cursor()
-cur.execute('SELECT * FROM weather_data ORDER BY extracted_at DESC LIMIT 20')
-for row in cur.fetchall(): print(row)
-conn.close()
-"
-```
-
-### Option B — DB Browser for SQLite (GUI)
-
-1. Download from https://sqlitebrowser.org/
-2. Open `database/weather.db` directly from your project folder
-
----
-
-## 📈 Running the Visualization
-
-### Step 1 — Install Python dependencies locally
+### Run Jupyter Notebook
 
 ```bash
 pip install pandas matplotlib jupyter
-```
-
-### Step 2 — Launch Jupyter
-
-```bash
 cd notebook
 jupyter notebook
 ```
 
-### Step 3 — Open and run the notebook
+Open:
 
-1. Click `visualization.ipynb`
-2. Run each cell with **Shift + Enter** (or click ▶ Run All)
-3. Charts are also saved as `.png` files in the `database/` folder
-
----
-
-## 🛑 Stopping the Pipeline
-
-```bash
-# Stop containers (data is preserved)
-docker compose down
-
-# Stop AND delete all data (including the postgres DB)
-docker compose down --volumes
+```
+visualization.ipynb
 ```
 
 ---
 
-## 🔄 How the Pipeline Works
+## 🔄 Pipeline Workflow
 
 ```
-┌──────────────┐     every day      ┌─────────────────────┐
-│  Airflow     │  ─────07:00 UTC──► │  weather_dag.py     │
-│  Scheduler   │                    │  (DAG orchestrator) │
-└──────────────┘                    └──────────┬──────────┘
-                                               │ PythonOperator
-                                               ▼
-                                    ┌─────────────────────┐
-                                    │ extract_weather.py  │
-                                    │                     │
-                                    │  Open-Meteo API     │
-                                    │  → London           │
-                                    │  → New York         │
-                                    │  → Tokyo            │
-                                    └──────────┬──────────┘
-                                               │ INSERT
-                                               ▼
-                                    ┌─────────────────────┐
-                                    │  weather.db         │
-                                    │  (SQLite)           │
-                                    └──────────┬──────────┘
-                                               │ SELECT
-                                               ▼
-                                    ┌─────────────────────┐
-                                    │ visualization.ipynb │
-                                    │  pandas + matplotlib│
-                                    └─────────────────────┘
+Airflow Scheduler → DAG → Python Script → Open-Meteo API → SQLite DB → Visualization
 ```
-
-### Data Flow Details
-
-| Step | What Happens |
-|------|-------------|
-| 1. Scheduler triggers DAG | Airflow scheduler checks cron `0 7 * * *` and triggers a DAG run |
-| 2. `extract_weather` task runs | `PythonOperator` calls `run_extraction()` in `extract_weather.py` |
-| 3. API call | HTTP GET to `https://api.open-meteo.com/v1/forecast` for each city |
-| 4. Data parsing | JSON response → Python dict with 5 attributes + UTC timestamp |
-| 5. Database insert | `INSERT INTO weather_data ...` in `/opt/airflow/database/weather.db` |
-| 6. `log_summary` task runs | Reads XCom result and logs success/failure counts |
-| 7. Visualization | Jupyter notebook queries SQLite → pandas DataFrame → matplotlib charts |
 
 ---
 
@@ -234,35 +166,91 @@ docker compose down --volumes
 
 ```sql
 CREATE TABLE weather_data (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    city          TEXT    NOT NULL,       -- e.g. "London"
-    temperature   REAL,                   -- air temp at 2m, °C
-    humidity      INTEGER,               -- relative humidity, %
-    wind_speed    REAL,                   -- wind speed at 10m, km/h
-    weather_code  INTEGER,               -- WMO weather code (0 = clear sky)
-    feels_like    REAL,                   -- apparent temperature, °C
-    extracted_at  TEXT    NOT NULL        -- UTC ISO-8601 timestamp
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    city TEXT NOT NULL,
+    temperature REAL,
+    humidity INTEGER,
+    wind_speed REAL,
+    weather_code INTEGER,
+    feels_like REAL,
+    extracted_at TEXT NOT NULL
 );
 ```
 
 ---
 
-## 🧯 Troubleshooting
+## 🖼️ Project Screenshots
 
-| Problem | Fix |
-|---------|-----|
-| Port 8080 already in use | Change `"8080:8080"` to `"8081:8080"` in `docker-compose.yaml` |
-| DAG not visible in UI | Wait 30 s — scheduler scans every 30 s. Check `docker compose logs airflow-scheduler` |
-| `weather.db` not created | Run the DAG once. The script creates it automatically |
-| Import error in task logs | Run `docker compose restart airflow-scheduler` |
-| Containers not starting | Run `docker compose down --volumes` then `docker compose up -d` again |
+### 🔹 Airflow UI Dashboard
+
+![Airflow UI](images/airflow-ui.png)
 
 ---
 
-## 📝 API Reference
+### 🔹 DAG Graph View
 
-This project uses [Open-Meteo](https://open-meteo.com/):
-- ✅ Free, no API key required
-- ✅ No rate limits for personal use
-- ✅ Covers worldwide coordinates
-- Docs: https://open-meteo.com/en/docs
+![DAG Graph](images/dag-graph.png)
+
+---
+
+### 🔹 Pipeline Workflow
+
+![Pipeline](images/pipeline.png)
+
+---
+
+### 🔹 Task Execution (Step 1)
+
+![Task1](images/task1.png)
+
+---
+
+### 🔹 Task Execution (Step 2)
+
+![Task2](images/task2.png)
+
+---
+
+### 🔹 Weather Extraction Script
+
+![Extract Script](images/extract.png)
+
+---
+
+### 🔹 Docker Setup
+
+![Docker](images/docker.png)
+
+---
+
+### 🔹 Database View
+
+![Database](images/db.png)
+
+---
+
+## 🧯 Troubleshooting
+
+| Problem          | Solution                            |
+| ---------------- | ----------------------------------- |
+| Port 8080 in use | Change to `8081:8080`               |
+| DAG not visible  | Wait 30s or restart scheduler       |
+| DB not created   | Run DAG once                        |
+| Import errors    | Restart containers                  |
+| Containers fail  | Run `docker compose down --volumes` |
+
+---
+
+## 📈 Future Improvements
+
+* Use PostgreSQL instead of SQLite
+* Deploy pipeline to cloud (AWS/GCP)
+* Add real-time dashboards
+* Implement advanced data validation
+
+---
+
+
+
+
+This project is developed for academic purposes.
