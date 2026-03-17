@@ -183,31 +183,31 @@ CREATE TABLE weather_data (
 
 ### 🔹 Airflow UI Dashboard
 
-![Airflow UI](Images/Airflow UI Dashboard.png)
+![Airflow UI](Images/Airflow_UI_Dashboard.png)
 
 ---
 
 ### 🔹 DAG Graph View
 
-![DAG Graph](Images/DAG Graph.png)
+![DAG Graph](Images/DAG_Graph.png)
 
 ---
 
 ### 🔹 Pipeline Workflow
 
-![Pipeline](images/pipeline.png)
+![Pipeline](images/pipe_line.png)
 
 ---
 
 ### 🔹 Task Execution (Step 1)
 
-![Task1](images/task1.png)
+![Task1](images/Task1.png)
 
 ---
 
 ### 🔹 Task Execution (Step 2)
 
-![Task2](images/task2.png)
+![Task2](images/Task2.png)
 
 ---
 
