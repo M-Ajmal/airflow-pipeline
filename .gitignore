@@ -4,3 +4,4 @@ __pycache__/
 airflow.db
 logs/
 venv/
+database/
