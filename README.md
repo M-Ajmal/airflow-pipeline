@@ -183,13 +183,13 @@ CREATE TABLE weather_data (
 
 ### 🔹 Airflow UI Dashboard
 
-![Airflow UI](images/airflow-ui.png)
+![Airflow UI](Images/Airflow UI Dashboard.png)
 
 ---
 
 ### 🔹 DAG Graph View
 
-![DAG Graph](images/dag-graph.png)
+![DAG Graph](Images/DAG Graph.png)
 
 ---
 
